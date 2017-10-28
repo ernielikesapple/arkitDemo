@@ -64,7 +64,9 @@ class LogInVC: UIViewController {
         
         // LogIn func goes here
         // save to keychain blah blah...
-        Alert.showBasic(title: "Good", message: "😄", vc: self)
+       // Alert.showBasic(title: "Good", message: "😄", vc: self)
+        
+        performSegue(withIdentifier: "successLogIn", sender: nil)
     }
     
     /*
