@@ -13,9 +13,9 @@ class youtubeHomePageVC: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .green
-        collectionView?.backgroundColor = .green
-        collectionView?.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        view.backgroundColor = .white
+        collectionView?.backgroundColor = .white
+        collectionView?.register(videoCollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
         // Do any additional setup after loading the view.
     }
     
@@ -25,8 +25,15 @@ class youtubeHomePageVC: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath)
-        cell.backgroundColor = .blue
+        cell.backgroundColor = .lightGray
         return cell
     }
+}
 
+// grid based layout, delegate to allow you change the size and space between the items
+extension youtubeHomePageVC: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: view.frame.width, height: 200)
+    }
+    
 }
