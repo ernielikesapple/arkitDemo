@@ -24,6 +24,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         variableTakeAFunction = funcitonNeedtoAssignToAVar(params: "Hello")
+        
+        let res = InsertSort().insertionSort(alist: [5,7,3])
+        print(res)
         // Do any additional setup after loading the view, typically from a nib.
     }
 
