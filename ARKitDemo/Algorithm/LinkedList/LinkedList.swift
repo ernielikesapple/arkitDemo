@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreImage
 
 class ThisIsALinkedList<T> {
     var item: T?

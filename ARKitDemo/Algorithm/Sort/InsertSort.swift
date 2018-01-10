@@ -10,10 +10,6 @@ class InsertSort {
 //    static let shared = InsertSort()
 //    private init() {
 //    }
-    
-    
-    
-    
     // actually we can do the sort in one line of code just use sortedList.sort()
     func insertionSort(alist: [Int]) -> [Int] {
         var sortedList = alist
