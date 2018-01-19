@@ -30,7 +30,7 @@ class PhotoListTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CellIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CellIdentifier", for: indexPath) as UITableViewCell
         if cell.accessoryView == nil {
             cell.accessoryView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
         }
@@ -46,18 +46,22 @@ class PhotoListTableViewController: UITableViewController {
         if let image = image {
          cell.imageView?.image = image
         } */
-        cell.textLabel?.text = self.photos[indexPath.row].name
-        cell.imageView?.image = self.photos[indexPath.row].image
+        let eachPhoto = self.photos[indexPath.row]
+        cell.textLabel?.text = eachPhoto.name
+        cell.imageView?.image = eachPhoto.image
         let indicator = cell.accessoryView as! UIActivityIndicatorView
-        switch photos[indexPath.row].state {
+        switch eachPhoto.state {
         case .Filtered:
+            print("======666====")
             indicator.stopAnimating()
         case .Failed:
+            print("======777====")
             indicator.stopAnimating()
             cell.textLabel?.text = "---"
         case .New, .Downloaded:
+            print("======888====")
             indicator.stopAnimating()
-            self.startOperationsForPhotoRecord(photoDetails: photos[indexPath.row], indexPath: indexPath)
+            self.startOperationsForPhotoRecord(photoDetails: eachPhoto, indexPath: indexPath)
         }
         return cell
     }
@@ -65,11 +69,13 @@ class PhotoListTableViewController: UITableViewController {
     func startOperationsForPhotoRecord(photoDetails: PhotoRecord, indexPath: IndexPath) {
         switch (photoDetails.state) {
         case .New:
+            print("11111111")
             startDownloadForRecord(photoDetails: photoDetails, indexPath: indexPath)
         case .Downloaded:
+            print("222222222")
             startFiltrationForRecord(photoDetails: photoDetails, indexPath: indexPath)
         default:
-            print("")
+            print("do nothing")
         }
     }
     
@@ -138,11 +144,16 @@ class PhotoListTableViewController: UITableViewController {
             // You should unwrap your data object instead of checking it against nil. Also you need to implement do try catch error handling instead of forcing it:
                 let datasourceDictionary = try PropertyListSerialization.propertyList(from: responseData, options: PropertyListSerialization.MutabilityOptions.mutableContainersAndLeaves, format: nil) as! NSDictionary
                 for (key, value) in datasourceDictionary {
-                    if let imageName = key as? String, let imageUrl = URL(string: value as! String) {
+                    let imageName = key as? String
+                    let imageUrl = URL(string: value as? String ?? "")
+                    if imageName != nil && imageName != nil {
                         let photoRecord = PhotoRecord(name: imageName,url: imageUrl)
                         self.photos.append(photoRecord)
+                        print("llllllllll")
                     }
+                    print("llllllllll88888")
                 }
+                print("llllllllll888880000000")
             } catch {
                 print("error at parsing data")
                 return

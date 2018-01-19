@@ -17,7 +17,7 @@ class PhotoRecord {
     let name: String?
     let url: URL?
     var state = PhotoRecordState.New
-    var image = UIImage(named: "Placeholder")
+    var image = UIImage(named: "blueTruck")
     
     init(name: String?, url: URL?) {
         self.name = name
@@ -80,7 +80,7 @@ class ImageDownloader: Operation {
             self.photoRecord.state = .Downloaded
         } else {
             self.photoRecord.state = .Failed
-            self.photoRecord.image = UIImage(named: "Failed")
+            self.photoRecord.image = UIImage(named: "blueTruck")
         }
     }
 }
