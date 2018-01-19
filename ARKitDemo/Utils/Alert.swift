@@ -13,6 +13,6 @@ class Alert {
     class func showBasic(title: String, message: String, vc: UIViewController) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        vc.present(alert, animated: true)    // git commit --amend try, tried day2 now try day3
+        vc.present(alert, animated: true)    // git commit --amend try
     }
 }
