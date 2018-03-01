@@ -33,7 +33,7 @@ class PendingOperations {
     lazy var downloadQueue:OperationQueue = {
        var queue = OperationQueue()
         queue.name = "Download queue"
-        // queue.maxConcurrentOperationCount = 1
+        queue.maxConcurrentOperationCount = 1
         //        The maxConcurrentOperationCount is set to 1 here for the sake of this tutorial, to allow you to see operations finishing one by one. You could leave this part out to allow the queue to decide how many operations it can handle at once – this would further improve performance.
         //        How does the queue decide how many operations it can run at once? That’s a good question! :] It depends on the hardware. By default, NSOperationQueue will do some calculation behind the scenes, decide what is best for the particular platform the code is running on, and will launch the maximum possible number of threads.
         return queue
@@ -43,7 +43,7 @@ class PendingOperations {
     lazy var filtrationQueue: OperationQueue = {
         var queue = OperationQueue()
         queue.name = "Image Filtration queue"
-        // queue.maxConcurrentOperationCount = 1
+        queue.maxConcurrentOperationCount = 1
         return queue
     }()
 }

@@ -46,21 +46,28 @@ class PhotoListTableViewController: UITableViewController {
         if let image = image {
          cell.imageView?.image = image
         } */
+        let indicator = cell.accessoryView as! UIActivityIndicatorView
+
         let eachPhoto = self.photos[indexPath.row]
         cell.textLabel?.text = eachPhoto.name
         cell.imageView?.image = eachPhoto.image
-        let indicator = cell.accessoryView as! UIActivityIndicatorView
         switch eachPhoto.state {
         case .Filtered:
             print("======666====")
-            indicator.stopAnimating()
+            DispatchQueue.main.async {
+                indicator.stopAnimating()
+            }
         case .Failed:
             print("======777====")
-            indicator.stopAnimating()
+            DispatchQueue.main.async {
+                indicator.stopAnimating()
+            }
             cell.textLabel?.text = "---"
         case .New, .Downloaded:
             print("======888====")
-            indicator.stopAnimating()
+            DispatchQueue.main.async {
+                indicator.stopAnimating()
+            }
             self.startOperationsForPhotoRecord(photoDetails: eachPhoto, indexPath: indexPath)
         }
         return cell
@@ -86,7 +93,8 @@ class PhotoListTableViewController: UITableViewController {
         }
         // 2 create an instance of image downloader by using designated initial either
         let downloader = ImageDownloader(photoRecord: photoDetails)
-        // 3
+        // 3 Add a completion block which will be executed when the operation is completed. This is a great place to let the rest of your app know that an operation has finished. It’s important to note that the completion block is executed even if the operation is cancelled, so you must check this property before doing anything. You also have no guarantee of which thread the completion block is called on, so you need to use GCD to trigger a reload of the table view on the main thread.
+        //???????????????????????????????????????
         downloader.completionBlock = {
             if downloader.isCancelled {
                 return
@@ -96,9 +104,9 @@ class PhotoListTableViewController: UITableViewController {
                 self.tableView.reloadRows(at: [indexPath], with: .fade)
             }
         }
-        // 4
+        // 4 Add the operation to downloadsInProgress to help keep track of things.
         pendingOperations.downloadsInProgress[indexPath] = downloader
-        // 5
+        // 5 Add the operation to the download queue. This is how you actually get these operations to start running – the queue takes care of the scheduling for you once you’ve added the operation.
         pendingOperations.downloadQueue.addOperation(downloader)
     }
     
@@ -121,23 +129,25 @@ class PhotoListTableViewController: UITableViewController {
     }
     
     func fetchPhotoDetails() {
-        // UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         guard let url = URL(string: dataSourceURL) else {
             print("Error: cannot create URL")
             return
         }
-        let urlRequest = URLRequest(url: url)
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "GET"
         // set up the session
         let config = URLSessionConfiguration.default
         let session = URLSession(configuration: config)
         // make the request
+
         let task =  session.dataTask(with: urlRequest) { (data, response, error) in
             guard error == nil else {
                 print("error at session data task")
                 return
             }
             guard let responseData = data else {
-                print("Error: did not reive data")
+                print("Error: did not receive data")
                 return
             }
             do {
@@ -146,7 +156,7 @@ class PhotoListTableViewController: UITableViewController {
                 for (key, value) in datasourceDictionary {
                     let imageName = key as? String
                     let imageUrl = URL(string: value as? String ?? "")
-                    if imageName != nil && imageName != nil {
+                    if imageName != nil && imageUrl != nil {
                         let photoRecord = PhotoRecord(name: imageName,url: imageUrl)
                         self.photos.append(photoRecord)
                         print("llllllllll")
@@ -154,6 +164,10 @@ class PhotoListTableViewController: UITableViewController {
                     print("llllllllll88888")
                 }
                 print("llllllllll888880000000")
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                }
             } catch {
                 print("error at parsing data")
                 return
