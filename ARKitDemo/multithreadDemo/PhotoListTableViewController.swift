@@ -68,7 +68,9 @@ class PhotoListTableViewController: UITableViewController {
             DispatchQueue.main.async {
                 indicator.stopAnimating()
             }
-            self.startOperationsForPhotoRecord(photoDetails: eachPhoto, indexPath: indexPath)
+            if(!tableView.isDragging && !tableView.isDecelerating) { // start operations only if the table view is not scrolling.
+                self.startOperationsForPhotoRecord(photoDetails: eachPhoto, indexPath: indexPath)
+            }
         }
         return cell
     }
@@ -163,11 +165,11 @@ class PhotoListTableViewController: UITableViewController {
                     }
                     print("llllllllll88888")
                 }
-                print("llllllllll888880000000")
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     UIApplication.shared.isNetworkActivityIndicatorVisible = false
                 }
+                print("llllllllll888880000000")
             } catch {
                 print("error at parsing data")
                 return
@@ -175,6 +177,68 @@ class PhotoListTableViewController: UITableViewController {
             // UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
         task.resume()
+    }
+    
+    // the dragging and decelerating properties because UITableView is a subclass of UIScrollView delegate methods to the class
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // 1 when the user starts scrolling you will want to suspend all operations and take a look at what the user wants to see.
+        suspendAllOperations()
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        // 2 when the user stops dragging the table view.
+        if (!decelerate) {
+            loadImagesForOnScreenCells()
+            resumeAllOperations()
+        }
+    }
+    
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        loadImagesForOnScreenCells()
+        resumeAllOperations()
+    }
+    
+    func suspendAllOperations() {
+        pendingOperations.downloadQueue.isSuspended = true
+    }
+    
+    func resumeAllOperations() {
+        pendingOperations.downloadQueue.isSuspended = false
+        pendingOperations.filtrationQueue.isSuspended = false
+    }
+    
+    func loadImagesForOnScreenCells() {
+        // 1
+        if let pathsArray = tableView.indexPathsForVisibleRows {
+            // 2
+            var allPendingOperations = Set(Array(pendingOperations.downloadsInProgress.keys))
+            allPendingOperations.union(Array(pendingOperations.filtrationsInProgress.keys))
+            
+            // 3
+            var toBeCancelled = allPendingOperations
+            let visiblePaths = Set(pathsArray as [IndexPath])
+            toBeCancelled.subtract(visiblePaths)
+            
+            // 4
+            var toBeStarted = visiblePaths
+            toBeStarted.subtract(allPendingOperations) //
+            
+            // 5
+            for indexPath in toBeCancelled {
+                if let pendingDownload = pendingOperations.downloadsInProgress[indexPath] {
+                    pendingDownload.cancel()
+                }
+                pendingOperations.downloadsInProgress.removeValue(forKey: indexPath)
+            }
+            
+            // 6
+            for indexPath in toBeStarted {
+                let indexPath = indexPath as IndexPath
+                let recordToProcess = self.photos[indexPath.row]
+                startOperationsForPhotoRecord(photoDetails: recordToProcess, indexPath: indexPath)
+            }
+            
+        }
     }
     
 //    func appySepialFilter(image: UIImage) -> UIImage {
